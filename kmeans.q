@@ -15,6 +15,7 @@ centers:k{value avg each x group mindist2[x;y]}[m]/init;
 mindist2[m;centers]}
 kpp2:{[m;n](n-1){y,x iwrand2[1]{x x?min x}each flip{sqrt sum x*x-:y}[flip x]'[y]}[m]/1?m}
 
+ 
 / utils
 mindist2:{{k:@[x;where x=0;:;0n];k?min k}each flip{sqrt sum x*x-:y}[flip x]'[y]}
 randinit2:{neg[y]?x}
