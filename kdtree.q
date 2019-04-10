@@ -1,84 +1,88 @@
 \d .kd
 
-/build tree - insert first clust as root then insert the remain clusters and their indices
-tree.createTree:{[sample;diml]
- root:flip `idx`initi`rep`dir`dim`parent`clust`clustIdx`valid!(0;0;enlist @[sample;0];2;0;0;0;enlist (0 0);1b);
- kds:tree.insertKd[diml]/[root;1_sample;cl;cl:1_til count sample];
- kds:update clustIdx:enlist each til count[sample] from kds;
- tree.distC/[kds;kds`initi]
+/utils
+imax:{x?max x}
+imin:{x?min x}
+
+/distance metrics
+mdist:{sum abs x}
+edist2:{sum x*x}
+edist:{sqrt edist2 x}
+
+/linkage
+ld:`single`complete`centroid!(({x y};imin);({x y};imax);({enlist avg x y};imin))
+
+/insert 1st clust as root, then remaining clusts and indices
+/*  (d)ata points
+/*  (s)plitting (d)imension
+tree.createTree:{[d;sd;f]
+ r:flip`idx`initi`rep`dir`dim`parent`clust`clustIdx`valid!
+  (0;0;enlist @[d;0];2;0;0;0;enlist 0 0;1b);
+ t:tree.insertKd[sd]/[r;1_d;cl;cl:1_til count d];
+ t:update clustIdx:enlist each til count d from t;
+ tree.distC/[t;t`initi;f]
  }
 
-/insert new clust into tree
-tree.insertKd:{[diml;kd;samp;L;cl]
- /check if clust is to L or R of initial clust in tree
- dirn:{0<=first @[x;0]`idx}{[samp;kd;nn]
-  /a is prev pt, i is next pt to do split on
-  a:@[nn;0];
-  /insert clust by looking at splitting dimension of each node
-  dir1:$[samp[first a`dim]>(raze a`rep)[first a`dim];1;0];
-  i:select from kd where dir=dir1,parent=first a`idx,valid;
-  (i;a;dir1)}[samp;kd]/(i;i:kd[0]);
- par:dirn[1];
- /update the info of new node into tree
- $[not 0b in kd[`valid];
-  kd upsert([]idx:max[kd`idx]+1;initi:L;clust:L;rep:enlist samp;dim:diml par[`dim]+1;valid:1b;parent:par`idx;dir:dirn[2]);
-  update idx:(max kd`idx)+1,initi:L,clust:cl,rep:enlist samp,valid:1b,dim:diml par[`dim]+1,dir:dirn[2],parent:par`idx from kd where idx=first exec idx from kd where not valid]
+/insert new clust into tree - check if L or R of init clust, insert looking at sd of each node, upd info of new node in tree
+/*  (t)ree
+/*  l: current idx
+/*  current (cl)uster
+tree.insertKd:{[sd;t;d;l;cl]
+ nsd:{0<=first @[x;0]`idx}{[d;t;nn]a:@[nn;0];
+  sd:$[d[first a`dim]>raze[a`rep]first a`dim;1;0];
+  i:select from t where dir=sd,parent=first a`idx,valid;
+  (i;a;sd)}[d;t]/enlist t 0;      /a:prev pt, i:next pt to do split on
+ p:nsd 1;
+ $[not 0b in t`valid;
+  t upsert([]idx:1+max t`idx;initi:l;clust:l;rep:enlist d;
+   dim:sd 1+p`dim;valid:1b;parent:p`idx;dir:nsd 2);
+  update idx:1+max t`idx,initi:l,clust:cl,rep:enlist d,valid:1b,dim:sd 1+p`dim,
+   dir:nsd 2,parent:p`idx from t where idx=first exec idx from t where not valid]
  }
 
-/calculate dist between clusters using tree
-tree.distCalc:{[kd;query;cl;bestD]
- /nodes to search that arent in the same cluster;bd[1]=next pts to search
- newn:nn where{[cl;kd;x](first exec clust from kd where idx=x,valid)<>cl}[cl;kd]each nn:bestD[1];
- /get minimum dist of all searched nodes
- newD:imins,newn ii?imins:min ii:{[kd;query;x]sum m*m:(first exec rep from kd where idx=x,valid)-query}[kd;query]each newn;
- /if new dist is less than current best dist, then that becomes new best dist
- $[(newD[0]<bestD[0])&count[newn]<>0;(bestD[0]:newD[0];bestD[2]:newD[1]);];
- /calc dist between node and pts based on split dim
- /if <= bestD then search the leafs
- /go up the tree, to L/R depending on position
- axisD:(raze{[kd;bestD;query;nn]
-  ll:select from kd where idx=nn,valid;
-  dirn:$[(qdim:query[dd])<rdim:(first ll[`rep])[dd:first ll`dim];0;1];
-  $[bestD[0]>=m*m:rdim-qdim;exec idx from kd where parent=nn,valid;exec idx from kd where parent=nn,dir=dirn,valid],ll`parent
-  }[kd;bestD;query]each nn)except bestD[3]:bestD[3],nn; /bestD[3]=nodes already searched
- (bestD[0];distinct axisD;bestD[2];bestD[3])
+/calculate distances between clusters using tree
+/*  (p)oint to query
+/*  current (b)est (d)istance
+tree.distCalc:{[t;p;cl;f;bd]
+ newn:nn where{[cl;t;x]cl<>first exec clust from t where idx=x,valid}[cl;t]each nn:bd 1;
+ newD:imins,newn ii?imins:min ii:{[t;p;f;x]f(first exec rep from t where idx=x,valid)-p}[t;p;f]each newn;
+ $[(newD[0]<bd[0])&count[newn]<>0;(bd[0]:newD[0];bd[2]:newD[1]);];
+ axisD:(raze{[t;bd;p;f;nn]
+  ll:select from t where idx=nn,valid;
+  nsd:$[(qdim:p[dd])<rdim:first[ll`rep]dd:first ll`dim;0;1];
+  $[bd[0]>=f[rdim-qdim];exec idx from t where parent=nn,valid;
+   exec idx from t where parent=nn,dir=nsd,valid],ll`parent
+  }[t;bd;p;f]each nn)except bd[3]:bd[3],nn; 
+ (bd[0];distinct axisD;bd[2];bd[3])
  }
  
-/upd distances
-tree.distC:{[kd;pt] 
-  idpts:select parent,clust,rep from kd where idx=pt,valid;
-  dist:{0<>count @[x;1]}tree.distCalc[kd;first idpts`rep;first idpts`clust]/
-   (0W;(raze idpts[`parent],raze exec idx from kd where parent=pt,valid)except pt;pt;pt);
- /update new closDist and idx in tree
- update closDist:dist[0],closIdx:dist[2] from kd where idx=pt
+/upd distances and new closDist/idx in tree
+tree.distC:{[t;pt;f] 
+  idpts:select parent,clust,rep from t where idx=pt,valid;
+  dist:{0<>count @[x;1]}tree.distCalc[t;first idpts`rep;first idpts`clust;f]/
+   (0W;(raze idpts[`parent],raze exec idx from t where parent=pt,valid)except pt;pt;pt);
+ update closDist:dist[0],closIdx:dist[2] from t where idx=pt
  }
 
 /delete node from tree
+/*  X: pt to be deleted
 tree.delN:{
- /tree and pt (X) to be deleted
- kd:x[0];
+ t:x[0];
  X:x[1];
- dirn:$[ii:0=count ll:exec idx from kd where dir=1,parent=X,valid;
-  first exec idx from kd where parent=X,dir=0,valid;
+ nsd:$[ii:0=count ll:exec idx from t where dir=1,parent=X,valid;
+  first exec idx from t where parent=X,dir=0,valid;
   first ll];
- /if pt has no R child, L child replaces
- mindim:raze{[kd;x]0<>count exec idx from kd where parent=first x,valid}[kd]
-  {[kd;x]raze exec idx from kd where parent in x,valid}[kd]\dirn;
- /min/max value of rep pts from mindim based on splitting dim
- newP:mindim $[ii;imax;imin]raze({[kd;x]first exec rep from kd where idx=x,valid
-  }[kd]each mindim)[;first exec dim from kd where idx=X,valid];
- /get info from tree of new position
- newNode:select from kd where idx=newP,valid;
- /newNode replaces the deleted pt, but dim and idx stay the same
- tree:update rep:newNode`rep,initi:newNode`initi,closDist:newNode`closDist,clust:newNode`clust,clustIdx:newNode`clustIdx, closIdx:newNode`closIdx from kd where idx=X,valid;
- /any pt that had newP as closest idx has to upd closIdx to new position
+ mindim:raze{[t;x]0<>count exec idx from t where parent=first x,valid}[t]
+  {[t;x]raze exec idx from t where parent in x,valid}[t]\nsd;
+ newP:mindim $[ii;imax;imin]raze({[t;x]first exec rep from t where idx=x,valid
+  }[t]each mindim)[;first exec dim from t where idx=X,valid];
+ newNode:select from t where idx=newP,valid;
+ tree:update rep:newNode`rep,initi:newNode`initi,closDist:newNode`closDist,clust:newNode`clust,clustIdx:newNode`clustIdx, closIdx:newNode`closIdx from t where idx=X,valid;
  (update closIdx:X from tree where closIdx=first newNode`idx,valid;newP)
  }
 
-/upd tree once pt deleted
-tree.deleteN:{[kd;X]
- /repeat process moving pts up the tree until pt is reached with no children
- delCl:{0<>count select from x[0] where parent=x[1],valid}tree.delN/(kd;first exec idx from kd where initi=X,valid);
- /delete the node with no children
+/ upd tree once pt deleted - repeat process moving pts up the tree until pt is reached with no children then delete node with no children
+tree.deleteN:{[t;X]
+ delCl:{0<>count select from x[0]where parent=x[1],valid}tree.delN/(t;first exec idx from t where initi=X,valid);
  update valid:0b from first delCl where idx=last delCl
  }
