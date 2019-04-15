@@ -21,12 +21,12 @@ cure.clust:{[sample;numR;com;diml;kd]
  $[0<count[j3];insertCl:{[rd;insertCl;n;j3]update closDist:rd[n],closIdx:enlist max[insertCl`idx] 
    from insertCl where idx=j3}[repdist]/[insertCl;n;j3];]; /update the tree if the new rep pts are closest to any other clusters 
  clustD:update closIdx:first nclos,closDist:brep from insertCl where clust=first idxs; /update the closest pt to the new rep pt
- recalc:kd.distC[;;edist2]/[clustD;exec idx from clustD where initi in j0,valid]; /recalc the new distances of pts who use to have the rep pts as their closestidx
+ recalc:kd.distC[edist2;`centroid]/[clustD;exec idx from clustD where initi in j0,valid]; /recalc the new distances of pts who use to have the rep pts as their closestidx
  {[insertIdx;kd;x] update clustIdx:insertIdx from kd where initi=x,valid}[enlist idxs]/[recalc;sami] /get the initial indexes of pts in the new merged clust&update these into kdtree
  }
 
 cure.cure:{[sample;numR;com;numCl]
  diml:(til count[first sample]),0;
- cureTab:{[numCl;kd](count distinct(select from kd where valid)`clust)>numCl}[numCl] cure.clust[sample;numR;com;diml]/kd.createTree[sample;diml;edist2];
+ cureTab:{[numCl;kd](count distinct(select from kd where valid)`clust)>numCl}[numCl] cure.clust[sample;numR;com;diml]/kd.createTree[sample;diml;edist2;`centroid];
  sample distinct(select from cureTab where valid)`clustIdx
  }

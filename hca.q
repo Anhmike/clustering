@@ -11,8 +11,7 @@ hc.clust:{[d;df;lf;sd;t]
  t:kd.deleteN/[t;idxs];                                              /delete rp from current tree
  v:select from t where valid;                                        /get remaining pts in tree
  dist:{x each y}[df]each flip rp-\:/:v`rep;                          /dist between rp&remaining pts
- link:ld[lf;1]each dd:flip dist;                                     /idx of clos rp to each other pt
- cd:dm im:imin dm:{x y}'[dd;link];                                   /d of closest pt to cl
+ cd:dm im:imin dm:ld[lf;1]dist;                                      /d of closest pt to cl
  ci:v[`idx]im;                                                       /idx of closest pt to cl
  $[lf~`centroid;[cent:1b;ii:first idxs];[cent:0b;ii:idxs]];          /if cent lf store new cl as 1row
  t:kd.insertKd[sd]/[t;rp;ii;i0:first idxs];                          /insert new cl
@@ -22,7 +21,7 @@ hc.clust:{[d;df;lf;sd;t]
   }[n;updp;dm]/[t;til count updp]];
  t:update closIdx:ci,closDist:cd from t where clust=i0;              /upd clos idx&d of all pts in cl
  nni:exec idx from t where valid,initi in nn;                        /get idx of nearest neighbours
- t:kd.distC/[t;nni;df];                                              /calc new d to cl
+ t:kd.distC[df;lf]/[t;nni];                                          /calc new d to cl
  {[c;t;j]                                                            /upd clustIdx to init idx of
   update clustIdx:c from t where initi=j,valid                       /all pts now in cl
   }[enlist idxs]/[t;$[cent;i0;idxs]]
@@ -31,7 +30,7 @@ hc.clust:{[d;df;lf;sd;t]
 /data, no clust, dist fnc, linkage fnc
 hc.hc:{[d;c;df;lf]
  sd:til[count first d],0;  /get splitting dims + next dim, e.g. 2D:0 1 0, 3D:0 1 2 0, etc
- t:kd.createTree[d;sd;df]; /build initial kd-tree and then run HCA until no clust=c
+ t:kd.createTree[d;sd;df;lf]; /build initial kd-tree and then run HCA until no clust=c
  r:{[c;t]c<count distinct exec clustIdx from t where valid}[c]hc.clust[d;df;lf;sd]/t;
  d distinct exec clustIdx from r where valid  /return pts in each cl
  }
