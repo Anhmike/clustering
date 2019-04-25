@@ -1,43 +1,37 @@
-\l kdtree.q
 \d .clust
 
 /takes in data and returns splitting dimensions + next splitting dimension
 dim:{count first x}
 
+val:{select from x where valid};
+
 /takes in kd-tree and num clust, returns true is num clust in t>desired num clust
 nclust:{[cl;t]cl<count distinct exec clustIdx from t where valid}
 
 /takes in a kd-tree, returns clust of 2 closest pts
-closClust:{
- v:select from x where valid;
- a:first select from v where closDist=min closDist; /cl with min closDist
- b:first exec clust from v where idx=a`closIdx;     /cl closest to a
+closClust:{ 
+ a:first select from x where closDist=min closDist; /cl with min closDist
+ b:first exec clust from x where idx=a`closIdx;     /cl closest to a
  select from x where clust in(b,a`clust)}           /cl of a and b
 
 /takes in a kd-tree and cluster, returns idx of nearest neighbours
-nnidx:{[t;cl]exec initi except cl`initi from t where valid,closIdx in cl`idx} 
+nnidx:{[t;cl]exec initi except cl`initi from t where closIdx in cl`idx} 
 
 /tree, closDist+closIdx to cl, nn, cl idxs, dist func, link func, initial idx
 /upd closest dets for cl and dist for nn, returns upd tree
-upd:{[t;cd;ci;nn;idxs;df;lf;ii]
- t:update closIdx:ci,closDist:cd from t where clust=first idxs;
- nni:exec idx from t where valid,initi in nn;
- t:kd.distC[df;lf]/[t;nni];
- {[c;t;j]update clustIdx:c from t where initi=j,valid}[enlist idxs]/[t;ii]}
-
-/insert new pt into the tree
-newpt:{[t;idxs;rp;sd;ii;df;lf;nn]
- t:kd.deleteN/[t;idxs];
- v:select from t where valid;
- dist:{x each y}[df]each flip rp-\:/:v`rep;         /dist between rp&other cl
- cd:dm im:imin dm:ld[lf;1]dist;                     /d of closest pt to cl
- ci:v[`idx]im;                                      /idx of closest pt to cl
- t:kd.insertKd[sd]/[t;rp;ii;first idxs];         /insert new cl
- updp:v[`idx]n:raze where each{x>y}[v`closDist]each dist; /pts w/ closDist>d to rp;
- if[0<count updp;t:{[n;p;dm;t;k]                    /if closer pts, upd tree
+upd:{[t;dist;idxs;df;lf;ii;rp;sd]
+ v:val t;
+ cd:dm im:imin dm:ld[lf;1]dist;                     
+ ci:v[`idx]im;                                      
+ t:kd.insertKd[sd]/[t;rp;ii;first idxs];
+ updp:v[`idx]n:raze where each{x>y}[v`closDist]each dist; 
+ if[0<count updp;t:{[n;p;dm;t;k]   
   update closDist:dm[n k],closIdx:enlist max t`idx from t where idx=p k
-  }[n;updp;dm]/[t;til count updp]];
- upd[t;cd;ci;nn;idxs;df;lf;ii]}
+  }[n;updp;dm]/[t;til count updp]]; 
+ update closIdx:ci,closDist:cd from t where clust=first idxs
+ }
+
+distc:{[v;rp;df]{x each y}[df]each flip rp-\:/:v`rep}
 
 curerep:{[d;cl;r;c]
  mean:avg pts:d idxs:distinct raze cl`clustIdx; /mean of rep pts
