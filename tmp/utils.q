@@ -1,24 +1,34 @@
 \d .clust
 
-/takes in data and returns splitting dimensions + next splitting dimension
+/splitting dimensions of co-ordinates + next splitting dimension, e.g. (x,y) = 0 1 0
 dim:{count first x}
 
-val:{select from x where valid};
+/valid entries of a kd-tree
+val:{select from x where valid}
 
-/takes in kd-tree and num clust, returns true is num clust in t>desired num clust
-nclust:{[cl;t]cl<count distinct exec clustIdx from t where valid}
+/true if number of clusters in a kd-tree > desired number of clusters (cl)
+nclust:{x<count distinct exec clustIdx from y where valid}
 
-/takes in a kd-tree, returns clust of 2 closest pts
+/2 closest clusters in a kd-tree
 closClust:{ 
- a:first select from x where closDist=min closDist; /cl with min closDist
- b:first exec clust from x where idx=a`closIdx;     /cl closest to a
- select from x where clust in(b,a`clust)}           /cl of a and b
+ a:first select from x where closDist=min closDist;
+ b:first exec clust from x where idx=a`closIdx;
+ select from x where clust in(b,a`clust)}
 
-/takes in a kd-tree and cluster, returns idx of nearest neighbours
+/index of nearest neighbours in kd-tree to cluster
 nnidx:{[t;cl]exec initi except cl`initi from t where closIdx in cl`idx} 
 
-/tree, closDist+closIdx to cl, nn, cl idxs, dist func, link func, initial idx
-/upd closest dets for cl and dist for nn, returns upd tree
+/updated kd-tree with new closest distance/idx for cluster and nearest neighbours
+/* t    = tree
+/* dist = closest distances to cluster
+/* idxs = closest index to cluster
+/* nn   = nearest neighbours to cluster
+/* df   = distance function/metric
+/* lf   = linkage function
+/* ii   = initial index
+/* rp   = representative points
+/* sd   = splitting dimensions
+
 upd:{[t;dist;idxs;df;lf;ii;rp;sd]
  v:val t;
  cd:dm im:imin dm:ld[lf;1]dist;                     
@@ -31,25 +41,30 @@ upd:{[t;dist;idxs;df;lf;ii;rp;sd]
  update closIdx:ci,closDist:cd from t where clust=first idxs
  }
 
-distc:{[v;rp;df]{x each y}[df]each flip rp-\:/:v`rep}
+/distance calulation (x) between valid points in tree (y) and points in cluster (z)
+distc:{{x each y}[x]each flip z-\:/:y`rep}
+
+/representative points for a cluster using CURE
+/* d  = data points
+/* cl = cluster
+/* r  = number of representative points
+/* c  = compression
 
 curerep:{[d;cl;r;c]
- mean:avg pts:d idxs:distinct raze cl`clustIdx; /mean of rep pts
- maxFromMean:idxs imax sum each{x*x}mean-/:d idxs; /max pts from mean
- rp:distinct d ii:r{[samp;idxs;nn]              /get most spread out rep pts
+ mean:avg pts:d idxs:distinct raze cl`clustIdx;
+ maxFromMean:idxs imax sum each{x*x}mean-/:d idxs;
+ rp:distinct d ii:r{[samp;idxs;nn]     /get most spread out pts as rp
   nn,maxI imax{[samp;nn;maxI]
    min{[samp;nn;maxI]
     sum x*x:samp[maxI]-samp[nn]
    }[samp;maxI]each nn
   }[samp;nn]each maxI:idxs except nn
  }[d;idxs]/maxFromMean;
- rp:(rp*1-c)+\:c*mean; /apply comp to rp
- (rp;ii;idxs)
- }
+ rp:(rp*1-c)+\:c*mean;                 /apply comp to rp
+ (rp;ii;idxs)}
 
+/representative points for cluster using hierarchical clustering
 hcrep:{[d;cl;lf]
- rp:ld[lf;0][d;idxs:distinct raze cl`clustIdx]; /rep pts
- ii:$[lf~`centroid;[first idxs];idxs]; /if cent, new cl-> 1row
- (rp;ii;idxs)
- } 
-
+ rp:ld[lf;0][d;idxs:distinct raze cl`clustIdx];
+ ii:$[lf~`centroid;[first idxs];idxs]; /for centroid lf insert clust as 1 row (mean rp)
+ (rp;ii;idxs)}

@@ -31,7 +31,7 @@ cluster:{[d;r;c;sd;b;t]
  $[b;(df:edist2;lf:`single);(df:r;lf:c)];
  nn:nnidx[v;cl];
  t:kd.deleteN/[t;idxs:rep 2];
- dist:distc[val t;rp:rep 0;df];
+ dist:distc[df;val t;rp:rep 0];
  t:upd[t;dist;idxs;df;lf;ii:rep 1;rep 0;sd];
  nni:exec idx from t where initi in nn,valid;
  t:kd.distC[df;lf]/[t;nni];
