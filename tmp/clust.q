@@ -14,23 +14,32 @@ cure:{[d;cl;r;c]
  initcl[d;cl;r;c;1b]}
 
 
-
 initcl:{[d;cl;x1;x2;b]
  t:$[b;kd.createTree[d;sd:dim d;edist2;`single];
   kd.createTree[d;sd:dim d;x1;x2]];
- p:nclust[cl]cluster[d;x1;x2;sd;b]/t;
+ p:$[(x2~`single);
+ nclust[cl]hcsin[d;x1;x2;sd]/t;nclust[cl]cluster[d;x1;x2;sd;b]/t];
  d distinct exec clustIdx from p where valid}
 
 cluster:{[d;r;c;sd;b;t]
  v:val t;
  cl:closClust v;
- nn:nnidx[v;cl];
  rep:$[b;curerep[d;cl;r;c];hcrep[d;cl;c]];
- t:kd.deleteN/[t;idxs:rep[2]];
  $[b;(df:edist2;lf:`single);(df:r;lf:c)];
+ nn:nnidx[v;cl];
+ t:kd.deleteN/[t;idxs:rep[2]];
  dist:distc[val t;rp:rep[0];df];
  t:upd[t;dist;idxs;df;lf;ii:rep[1];rep[0];sd];
  nni:exec idx from t where initi in nn,valid;
  t:kd.distC[df;lf]/[t;nni];
  {[c;t;j]update clustIdx:c from t where initi=j,valid}[enlist idxs]/[t;ii]}
+
+hcsin:{[d;df;lf;sd;t]
+ cl:closClust t;
+ i0:first idxs:distinct raze cl`clustIdx;
+ t:update clust:i0 from t where idx in cl`idx;ii:idxs;
+ nni:exec idx from t where closIdx in cl`idx;
+ t:kd.distC[df;lf]/[t;nni];
+ {[c;t;j]update clustIdx:c from t where initi=j,valid}[enlist idxs]/[t;ii]}
+
 

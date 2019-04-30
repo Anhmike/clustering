@@ -52,3 +52,4 @@ hcrep:{[d;cl;lf]
  ii:$[lf~`centroid;[first idxs];idxs]; /if cent, new cl-> 1row
  (rp;ii;idxs)
  } 
+
