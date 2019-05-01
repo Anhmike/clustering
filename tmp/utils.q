@@ -42,7 +42,7 @@ upd:{[t;dist;idxs;lf;ii;rp;sd]
 
 /distance calulation (x) between valid points in tree (y) and points in cluster (z)
 /distc:{{x each y}[x]each flip z-\:/:y`rep}
-distc:{ddd[x]@'/:z-\:/:y`rep}
+distc:{dd[x]@'/:z-\:/:y`rep}
 
 /representative points for a cluster using CURE
 /* d  = data points
