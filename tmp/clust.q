@@ -49,8 +49,8 @@ hcsin:{[d;df;lf;sd;t]
  cl:closClust t;
  i0:first idxs:distinct raze cl`clustIdx;
  t:update clust:i0 from t where idx in cl`idx;ii:idxs;
+ 
  recalc[df;lf;t;cl`idx;idxs;ii]}
-
 
 createtab:{
  d:{(d i;i:first 1_iasc d:ddd[z]each x-/:y)}[;x;y]each x;
@@ -67,4 +67,5 @@ hcca:{[df;lf;t]
  im:(tc@\:`clt)@'im;
  {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]
  }
+
 

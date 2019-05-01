@@ -23,18 +23,17 @@ nnidx:{[t;cl]exec initi except cl`initi from t where closIdx in cl`idx}
 /* dist = closest distances to cluster
 /* idxs = closest index to cluster
 /* nn   = nearest neighbours to cluster
-/* df   = distance function/metric
 /* lf   = linkage function
 /* ii   = initial index
 /* rp   = representative points
 /* sd   = splitting dimensions
 
-upd:{[t;dist;idxs;df;lf;ii;rp;sd]
+upd:{[t;dist;idxs;lf;ii;rp;sd]
  v:val t;
  cd:dm im:imin dm:ld[lf;1]dist;                     
  ci:v[`idx]im;                                      
  t:kd.insertKd[sd]/[t;rp;ii;first idxs];
- updp:v[`idx]n:raze where each{x>y}[v`closDist]each dist; 
+ updp:v[`idx]n:raze where{x>y}'[v`closDist;dm]; 
  if[0<count updp;t:{[n;p;dm;t;k]   
   update closDist:dm[n k],closIdx:enlist max t`idx from t where idx=p k
   }[n;updp;dm]/[t;til count updp]]; 
@@ -42,7 +41,8 @@ upd:{[t;dist;idxs;df;lf;ii;rp;sd]
  }
 
 /distance calulation (x) between valid points in tree (y) and points in cluster (z)
-distc:{{x each y}[x]each flip z-\:/:y`rep}
+/distc:{{x each y}[x]each flip z-\:/:y`rep}
+distc:{dd[x]@'/:z-\:/:y`rep}
 
 /representative points for a cluster using CURE
 /* d  = data points
@@ -66,5 +66,10 @@ curerep:{[d;cl;r;c]
 /representative points for cluster using hierarchical clustering
 hcrep:{[d;cl;lf]
  rp:ld[lf;0][d;idxs:distinct raze cl`clustIdx];
- ii:$[lf~`centroid;[first idxs];idxs]; /for centroid lf insert clust as 1 row (mean rp)
+ ii:$[lf~`centroid;first idxs;idxs]; /for centroid lf insert clust as 1 row (mean rp)
  (rp;ii;idxs)}
+
+/updated tree with nearest neighbour distances recalculated
+recalc:{[df;lf;t;nni;idxs;ii]
+ t:kd.distC[df;lf]/[t;nni];
+ {[c;t;j]update clustIdx:c from t where initi=j,valid}[enlist idxs]/[t;ii]}
