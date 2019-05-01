@@ -69,9 +69,8 @@ hcca:{[df;lf;t]
  im:(tc@\:`clt)@'im;
  {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
 
+/clustered data points for ward linkage
 nnc:{[df;lf;x]
  cd:c,d:(x c:imin x`nnd)`nni;
  x:update clt:min cd from x where clt=max cd;
- updw[lf;df;cd;x]
- }
-
+ updw[lf;df;cd;x]}
