@@ -3,7 +3,9 @@
 /utils
 imax:{x?max x}
 imin:{x?min x}
+
 edist2:{x wsum x}
+
 /distance and linkage dictionaries
 dd:`e2dist`edist`mdist!({x wsum x};{sqrt edist2 x};{sum abs x})
 ld:`single`complete`average`centroid!
@@ -43,7 +45,6 @@ mindim:{[t;X;child]
   }[t]each child)[;first exec dim from t where idx=X,valid];
  select from t where idx=newP,valid}
 
-
 /updated kd-tree with new node n inserted
 updatet:{[t;n;X]
  update rep:n`rep,initi:n`initi,closDist:n`closDist,clust:n`clust,
@@ -55,4 +56,5 @@ splitdim:{[t;bd;p;df;nn]
  nsd:$[(qdim:p d)<rdim:first[a`rep]d:first a`dim;0;1];
  $[bd[0]>=dd[df]rdim-qdim;exec idx from t where parent=nn,valid;
   exec idx from t where parent=nn,dir=nsd,valid],a`parent}
+
 

@@ -1,7 +1,4 @@
-\l kdtree.q
-\d .clust
 
-/takes in data and returns splitting dimensions + next splitting dimension
 \d .clust
 
 /splitting dimensions of co-ordinates + next splitting dimension, e.g. (x,y) = 0 1 0

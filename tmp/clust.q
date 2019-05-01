@@ -21,11 +21,13 @@ cure:{[d;cl;r;c]
 
 /points in each cluster
 initcl:{[d;cl;x1;x2;b]
+
  t:$[bb:(`$string x2)in`complete`average`ward;createtab[d;x1]; 
     b;kd.createTree[d;sd:dim d;`e2dist;`single];
     kd.createTree[d;sd:dim d;x1;x2]];
  p:$[bb;$[(`$string x2)in`ward;{x<exec count distinct clt from y}[cl]nnc[x1;x2]/t;
  {x<exec count distinct clt from y}[cl]hcca[x1;x2]/t];
+
   x2~`single;nclust[cl]hcsin[d;x1;x2;sd]/t;
   nclust[cl]cluster[d;x1;x2;sd;b]/t];
  p /change for C/A

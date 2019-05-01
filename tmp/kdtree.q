@@ -1,7 +1,6 @@
 \d .clust
 
 
-/insert 1st clust as root, then remaining clusts and indices
 /kd-tree with first data point as the root and remaining points subsequently added
 /* d  = data points
 /* sd = splitting dimensions
