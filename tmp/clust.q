@@ -65,3 +65,4 @@ hcca:{[df;lf;t]
  cd:dm@'im:imin each dm:{$[1=y;raze;ld[x;1]]z}[lf]'[value count each nn;dd];
  im:(tc@\:`clt)@'im;
  {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
+
