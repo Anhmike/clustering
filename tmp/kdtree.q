@@ -38,7 +38,7 @@ kd.distC:{[df;lf;t;pt]
 kd.distCalc:{[t;p;cl;df;lf;bd]
  nn:bd 1;
  newn:select rep,idx from t where idx in nn,valid,clust<>cl;
- newD:imins,newn[`idx] ii?imins:min ii:{[p;x]sum m*m:x-p}[p]each newn`rep;
+ newD:imins,newn[`idx] ii?imins:min ii:{[df;p;x]dd[df] x-p}[df;p]each newn`rep;
  if[(newD[0]<bd 0)&count[newn]<>0;bd[0]:newD 0;bd[2]:newD 1];
  axisD:raze[splitdim[t;bd;p;df]each nn]except bd[3]:bd[3],nn;
  (bd 0;distinct axisD;bd 2;bd 3)}
