@@ -4,6 +4,8 @@
 imax:{x?max x}
 imin:{x?min x}
 
+edist2:{x wsum x}
+
 /distance and linkage dictionaries
 dd:`e2dist`edist`mdist`cshev!({x wsum x};{sqrt x wsum x};{sum abs x};{min abs x})
 ld:`single`complete`average`centroid!({x y};{x y};{x y};{enlist avg x y}),'
@@ -51,3 +53,5 @@ splitdim:{[t;bd;p;df;nn]
  nsd:$[(qdim:p d)<rdim:first[a`rep]d:first a`dim;0;1];
  $[bd[0]>=dd[df]rdim-qdim;exec idx from t where parent=nn,valid;
   exec idx from t where parent=nn,dir=nsd,valid],a`parent}
+
+
