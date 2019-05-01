@@ -8,8 +8,8 @@ edist2:{x wsum x}
 
 /distance and linkage dictionaries
 dd:`e2dist`edist`mdist`cshev!({x wsum x};{sqrt x wsum x};{sum abs x};{min abs x})
-ld:`single`complete`average`centroid!({x y};{x y};{x y};{enlist avg x y}),'
- ({{x y}'[x;imin each x]};{{x y}'[x;imax each x]};{avg x};{raze x})
+ld:`single`complete`average`centroid!(@;@;@;{enlist avg x y}),'
+ ({@'[x;imin each x]};{@'[x;imax each x]};avg;raze)
 
 /updated kd-tree with new node inserted
 /* t   = kd-tree
