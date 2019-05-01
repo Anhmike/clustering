@@ -4,15 +4,11 @@
 imax:{x?max x}
 imin:{x?min x}
 
-/distance metrics
-mdist: {sum abs x}
-edist: {sqrt edist2 x}
-edist2:{x wsum x}
-
-/linkage dictionary
+/distance and linkage dictionaries
+ddd:`e2dist`edist`mdist!({x wsum x};{sqrt edist2 x};{sum abs x})
 ld:`single`complete`average`centroid!
  ({x y};{x y};{x y};{enlist avg x y}),'
- ({{x y}'[dd;imin each dd:flip x]};{{x y}'[dd;imax each dd:flip x]};{avg x};{raze x}),'
+ ({{x y}'[x;imin each x]};{{x y}'[x;imax each x]};{avg x};{raze x}),'
  (min;max;avg;min)
 
 /updated kd-tree with new node inserted
@@ -52,8 +48,9 @@ updatet:{[t;n;X]
  update rep:n`rep,initi:n`initi,closDist:n`closDist,clust:n`clust,
   clustIdx:n`clustIdx,closIdx:n`closIdx from t where idx=X,valid}
 
+/new splitting dimension of node looking at parent
 splitdim:{[t;bd;p;df;nn]
  a:select from t where idx=nn,valid;
  nsd:$[(qdim:p d)<rdim:first[a`rep]d:first a`dim;0;1];
- $[bd[0]>=df rdim-qdim;exec idx from t where parent=nn,valid;
+ $[bd[0]>=ddd[df]rdim-qdim;exec idx from t where parent=nn,valid;
   exec idx from t where parent=nn,dir=nsd,valid],a`parent}
