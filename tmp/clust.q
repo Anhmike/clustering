@@ -27,7 +27,7 @@ initcl:{[d;cl;x1;x2;b]
  p:$[bb;{x<exec count distinct clt from y}[cl]hcca[x1;x2]/t;
   x2~`single;nclust[cl]hcsin[d;x1;x2;sd]/t;
   nclust[cl]cluster[d;x1;x2;sd;b]/t];
- p
+ p /change for C/A
  /d distinct exec clustIdx from p where valid
  }
 
@@ -49,23 +49,19 @@ hcsin:{[d;df;lf;sd;t]
  cl:closClust t;
  i0:first idxs:distinct raze cl`clustIdx;
  t:update clust:i0 from t where idx in cl`idx;ii:idxs;
- 
  recalc[df;lf;t;cl`idx;idxs;ii]}
 
+/initial cluster table for complete/average linkage
 createtab:{
- d:{(d i;i:first 1_iasc d:ddd[z]each x-/:y)}[;x;y]each x;
- flip`ind`rep`clt`nni`nnd!(i;x;i:til count x;d[;1];d[;0])
- }
+ d:{(d i;i:first 1_iasc d:dd[z]each x-/:y)}[;x;y]each x;
+ flip`ind`rep`clt`nni`nnd!(i;x;i:til count x;d[;1];d[;0])}
 
+/clustered data points for complete/average linkage
 hcca:{[df;lf;t]
- /e;
  cd:c,(t c:imin t`nnd)`nni;
  t:update clt:min cd from t where clt=max cd;
  nn:exec rep by clt from t where nni in cd;
  dd:distc[df]'[tc:{[x;y]select rep,clt from x where clt<>y}[t]each k:key nn;value nn];
  cd:dm@'im:imin each dm:{$[1=y;raze;ld[x;1]]z}[lf]'[value count each nn;dd];
  im:(tc@\:`clt)@'im;
- {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]
- }
-
-
+ {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
