@@ -21,10 +21,13 @@ cure:{[d;cl;r;c]
 
 /points in each cluster
 initcl:{[d;cl;x1;x2;b]
- t:$[bb:(`$string x2)in`complete`average;createtab[d;x1];
+
+ t:$[bb:(`$string x2)in`complete`average`ward;createtab[d;x1]; 
     b;kd.createTree[d;sd:dim d;`e2dist;`single];
     kd.createTree[d;sd:dim d;x1;x2]];
- p:$[bb;{x<exec count distinct clt from y}[cl]hcca[x1;x2]/t;
+ p:$[bb;$[(`$string x2)in`ward;{x<exec count distinct clt from y}[cl]nnc[x1;x2]/t;
+ {x<exec count distinct clt from y}[cl]hcca[x1;x2]/t];
+
   x2~`single;nclust[cl]hcsin[d;x1;x2;sd]/t;
   nclust[cl]cluster[d;x1;x2;sd;b]/t];
  p /change for C/A
@@ -65,4 +68,10 @@ hcca:{[df;lf;t]
  cd:dm@'im:imin each dm:{$[1=y;raze;ld[x;1]]z}[lf]'[value count each nn;dd];
  im:(tc@\:`clt)@'im;
  {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
+
+nnc:{[df;lf;x]
+ cd:c,d:(x c:imin x`nnd)`nni;
+ x:update clt:min cd from x where clt=max cd;
+ updw[lf;df;cd;x]
+ }
 

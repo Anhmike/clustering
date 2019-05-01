@@ -1,5 +1,6 @@
 \d .clust
 
+
 /kd-tree with first data point as the root and remaining points subsequently added
 /* d  = data points
 /* sd = splitting dimensions
@@ -59,3 +60,4 @@ kd.delN:{
  newNode:mindim[t;X;child];
  tree:updatet[t;newNode;X];
  (update closIdx:X from tree where closIdx=first newNode`idx,valid;first newNode`idx)}
+
