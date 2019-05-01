@@ -5,11 +5,9 @@ imax:{x?max x}
 imin:{x?min x}
 
 /distance and linkage dictionaries
-dd:`e2dist`edist`mdist!({x wsum x};{sqrt edist2 x};{sum abs x})
-ld:`single`complete`average`centroid!
- ({x y};{x y};{x y};{enlist avg x y}),'
- ({{x y}'[x;imin each x]};{{x y}'[x;imax each x]};{avg x};{raze x}),'
- (min;max;avg;min)
+dd:`e2dist`edist`mdist`cshev!({x wsum x};{sqrt x wsum x};{sum abs x};{min abs x})
+ld:`single`complete`average`centroid!({x y};{x y};{x y};{enlist avg x y}),'
+ ({{x y}'[x;imin each x]};{{x y}'[x;imax each x]};{avg x};{raze x})
 
 /updated kd-tree with new node inserted
 /* t   = kd-tree
@@ -22,10 +20,9 @@ ld:`single`complete`average`centroid!
 
 insertt:{[t;p;nsd;d;ii;ci;sd]
  $[not 0b in t`valid;
-  t upsert([]idx:1+max t`idx;initi:ii;clust:ii;rep:enlist d;
-   dim:(1+p`dim)mod sd;valid:1b;parent:p`idx;dir:nsd 2);
-  update idx:1+max t`idx,initi:ii,clust:ci,rep:enlist d,valid:1b,dim:(1+p`dim)mod sd,
-   dir:nsd 2,parent:p`idx from t where idx=first exec idx from t where not valid]}
+  t upsert([]idx:1+max t`idx;initi:ii;clust:ii;rep:enlist d;dim:mod[1+p`dim;sd];valid:1b;parent:p`idx;dir:nsd 2);
+  update idx:1+max t`idx,initi:ii,clust:ci,rep:enlist d,valid:1b,dim:mod[1+p`dim;sd],dir:nsd 2,parent:p`idx 
+   from t where idx=first exec idx from t where not valid]}
 
 /list of next node to split on, previous node and splitting dimensions
 nodedir:{[d;t;nn]
