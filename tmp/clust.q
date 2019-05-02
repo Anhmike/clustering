@@ -10,29 +10,18 @@
 /* lf = linkage function
 
 hc:{[d;cl;df;lf]
- initcl[d;cl;df;lf;0b]}
+ t:$[b:lf in`complete`average`ward;createtab[d;df];kd.createTree[d;sd:dim d;df;lf]];
+ $[lf~`ward;cn1[cl]nnc[df;lf]/t;b;cn1[cl]hcca[df;lf]/t;   /ward/complete/average
+  lf~`single;cn2[cl]hcsin[d;df;lf;sd]/t;                  /single
+  cn2[cl]cluster[d;df;lf;sd;0b]/t]}                       /centroid
 
 /CURE algorithm
 /* r = number of representative points
-/* c = compression
+/* x2 = compression
 
 cure:{[d;cl;r;c]
- initcl[d;cl;r;c;1b]}
-
-/points in each cluster
-initcl:{[d;cl;x1;x2;b]
-
- t:$[bb:(`$string x2)in`complete`average`ward;createtab[d;x1]; 
-    b;kd.createTree[d;sd:dim d;`e2dist;`single];
-    kd.createTree[d;sd:dim d;x1;x2]];
- p:$[bb;$[(`$string x2)in`ward;{x<exec count distinct clt from y}[cl]nnc[x1;x2]/t;
- {x<exec count distinct clt from y}[cl]hcca[x1;x2]/t];
-
-  x2~`single;nclust[cl]hcsin[d;x1;x2;sd]/t;
-  nclust[cl]cluster[d;x1;x2;sd;b]/t];
- p /change for C/A
- /d distinct exec clustIdx from p where valid
- }
+ t:kd.createTree[d;sd:dim d;`e2dist;`single];
+ cn2[cl]cluster[d;r;c;sd;1b]/t}
 
 /kd-tree with the two closest clusters merged and distances/indices updated
 cluster:{[d;x1;x2;sd;b;t]
@@ -57,20 +46,20 @@ hcsin:{[d;df;lf;sd;t]
 /initial cluster table for complete/average linkage
 createtab:{
  d:{(d i;i:first 1_iasc d:dd[z]each x-/:y)}[;x;y]each x;
- flip`ind`rep`clt`nni`nnd!(i;x;i:til count x;d[;1];d[;0])}
+ flip`ind`rep`clust`nni`nnd!(i;x;i:til count x;d[;1];d[;0])}
 
 /clustered data points for complete/average linkage
 hcca:{[df;lf;t]
  cd:c,(t c:imin t`nnd)`nni;
- t:update clt:min cd from t where clt=max cd;
- nn:exec rep by clt from t where nni in cd;
- dd:distc[df]'[tc:{[x;y]select rep,clt from x where clt<>y}[t]each k:key nn;value nn];
+ t:update clust:min cd from t where clust=max cd;
+ nn:exec rep by clust from t where nni in cd;
+ dd:distc[df]'[tc:{[x;y]select rep,clust from x where clust<>y}[t]each k:key nn;value nn];
  cd:dm@'im:imin each dm:{$[1=y;raze;ld[x;1]]z}[lf]'[value count each nn;dd];
- im:(tc@\:`clt)@'im;
- {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
+ im:(tc@\:`clust)@'im;
+ {[t;x;y;z]![t;enlist(=;`clust;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
 
 /clustered data points for ward linkage
 nnc:{[df;lf;x]
  cd:c,d:(x c:imin x`nnd)`nni;
- x:update clt:min cd from x where clt=max cd;
+ x:update clust:min cd from x where clust=max cd;
  updw[lf;df;cd;x]}

@@ -7,7 +7,10 @@ dim:{count first x}
 val:{select from x where valid}
 
 /true if number of clusters in a kd-tree > desired number of clusters (cl)
-nclust:{x<count distinct exec clustIdx from y where valid}
+/nclust:{x<count distinct exec clustIdx from y where valid}
+cn1:{x<exec count distinct clust from y}
+cn2:{x<count distinct exec clustIdx from y where valid}
+
 
 /2 closest clusters in a kd-tree
 closClust:{ 
@@ -53,7 +56,7 @@ distc:{dd[x]@'/:z-\:/:y`rep}
 curerep:{[d;cl;r;c]
  mean:avg pts:d idxs:distinct raze cl`clustIdx;
  maxFromMean:idxs imax sum each{x*x}mean-/:d idxs;
- rp:distinct d ii:r{[samp;idxs;nn]     /get most spread out pts as rp
+ rp:d ii:r{[samp;idxs;nn]     /get most spread out pts as rp
   nn,maxI imax{[samp;nn;maxI]
    min{[samp;nn;maxI]
     sum x*x:samp[maxI]-samp[nn]
@@ -90,14 +93,13 @@ newpt:{[t;idxs;rp;sd;ii;df;lf;nn]
 
 /clusters using ward
 updw:{[lf;df;cd;t]
- p:sum exec count[i]*first rep by rep from t where clt=min cd;
- t:update rep:count[i]#enlist[p%count[i]]by clt from t where clt=min cd;
- ct:0!select n:count i,first rep,nn:any nni in cd by clt from t;
+ p:sum exec count[i]*first rep by rep from t where clust=min cd;
+ t:update rep:count[i]#enlist[p%count[i]]by clust from t where clust=min cd;
+ ct:0!select n:count i,first rep,nn:any nni in cd by clust from t;
  nd:pointdist[df;lf;;ct]each uc:select from ct where nn;
- {[t;x;y]![t;enlist(=;`clt;x);0b;`nnd`nni!y[0],y 1]}/[t;uc`clt;nd]
+ {[t;x;y]![t;enlist(=;`clust;x);0b;`nnd`nni!y[0],y 1]}/[t;uc`clust;nd]
  }
 
 /ward distance calculations
-cldist:{[df;lf;x;y](d i;y[`clt]i:imin d:ldw[lf]each dd[df]@'/:raze each x-/:\:/:y`rep)}
-pointdist:{[df;lf;x;y](d first i j;first ci j:where x[`clt]<>ci:y[`clt]i:2#iasc d:dd[df]each x[`rep]-/:y`rep)}
+pointdist:{[df;lf;x;y](d first i j;first ci j:where x[`clust]<>ci:y[`clust]i:2#iasc d:ldw[x`n]'[y`n;dd[df]each x[`rep]-/:y`rep])}
 ldw:{z%(1%y)+1%x}
