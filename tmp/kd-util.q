@@ -1,15 +1,13 @@
 \d .clust
 
 /utils
-imax:{x?max x}
-imin:{x?min x}
-
-edist2:{x wsum x}
+kd.i.imax:{x?max x}
+kd.i.imin:{x?min x}
 
 /distance and linkage dictionaries
-dd:`e2dist`edist`mdist`cshev!({x wsum x};{sqrt x wsum x};{sum abs x};{min abs x})
-ld:`single`complete`average`centroid!(@;@;@;{enlist avg x y}),'
- ({@'[x;imin each x]};{@'[x;imax each x]};avg each;raze)
+kd.i.dd:`e2dist`edist`mdist!({x wsum x};{sqrt x wsum x};{sum abs x})
+kd.i.ld:`single`complete`average`centroid`ward!(@;@;@;{enlist avg x y};@),'
+ ({@'[x;kd.i.imin each x]};{@'[x;kd.i.imax each x]};avg each;raze;{z%(1%y)+1%x})
 
 /updated kd-tree with new node inserted
 /* t   = kd-tree
@@ -20,38 +18,37 @@ ld:`single`complete`average`centroid!(@;@;@;{enlist avg x y}),'
 /* ci  = cluster index
 /* sd  = splitting dimension
 
-insertt:{[t;p;nsd;d;ii;ci;sd]
+kd.i.insertn:{[t;p;nsd;d;ci;k;sd]
  $[not 0b in t`valid;
-  t upsert([]idx:1+max t`idx;initi:ii;clust:ii;rep:enlist d;dim:mod[1+p`dim;sd];valid:1b;parent:p`idx;dir:nsd 2);
-  update idx:1+max t`idx,initi:ii,clust:ci,rep:enlist d,valid:1b,dim:mod[1+p`dim;sd],dir:nsd 2,parent:p`idx 
+ t upsert([]idx:1+max t`idx;initi:1+max t`idx;clt:ci;cltidx:k;pts:enlist d;dim:mod[1+p`dim;sd];valid:1b;par:p`idx;dir:nsd);
+  update idx:1+max t`idx,initi:1+max t`idx,clt:ci,pts:enlist d,valid:1b,cltidx:k,dim:mod[1+p`dim;sd],dir:nsd,par:p`idx 
    from t where idx=first exec idx from t where not valid]}
 
-/list of next node to split on, previous node and splitting dimensions
-nodedir:{[d;t;nn]
+/returns list of next node to split on, previous node and splitting dimensions
+kd.i.nodedir:{[d;t;nn]
  a:nn 0;
- sd:$[d[first a`dim]>raze[a`rep]first a`dim;1;0];
- i:select from t where dir=sd,parent=first a`idx,valid;
+ sd:$[d[first a`dim]>raze[a`pts]first a`dim;1;0];
+ i:select from t where dir=sd,par=first a`idx,valid;
  (i;a;sd)}
 
 /children of node X
-branches:{[t;X]raze exec idx from t where parent in X,valid}
+kd.i.branches:{[t;X]raze exec idx from t where par in X,valid}
 
 /tree node of child with minimum dimension
-mindim:{[t;X;child]
- newP:child imin raze({[t;x]first exec rep from t where idx=x,valid
+kd.i.mindim:{[t;X;child]
+ newP:child kd.i.imin raze({[t;x]first exec pts from t where idx=x,valid
   }[t]each child)[;first exec dim from t where idx=X,valid];
  select from t where idx=newP,valid}
 
 /updated kd-tree with new node n inserted
-updatet:{[t;n;X]
- update rep:n`rep,initi:n`initi,closDist:n`closDist,clust:n`clust,
-  clustIdx:n`clustIdx,closIdx:n`closIdx from t where idx=X,valid}
+kd.i.updatet:{[t;n;X]
+ update pts:n`pts,initi:n`initi,nnd:n`nnd,clt:n`clt,
+  cltidx:n`cltidx,nni:n`nni from t where idx=X,valid}
 
 /new splitting dimension of node looking at parent
-splitdim:{[t;bd;p;df;nn]
+kd.i.splitdim:{[t;bd;p;df;nn]
  a:select from t where idx=nn,valid;
- nsd:$[(qdim:p d)<rdim:first[a`rep]d:first a`dim;0;1];
- $[bd[0]>=dd[df]rdim-qdim;exec idx from t where parent=nn,valid;
-  exec idx from t where parent=nn,dir=nsd,valid],a`parent}
-
+ nsd:$[(qdim:p d)<rdim:first[a`pts]d:first a`dim;0;1];
+ $[bd[0]>=kd.i.dd[df]rdim-qdim;exec idx from t where par=nn,valid;
+  exec idx from t where par=nn,dir=nsd,valid],a`par}
 

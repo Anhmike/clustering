@@ -10,56 +10,55 @@
 /* lf = linkage function
 
 hc:{[d;cl;df;lf]
- t:$[b:lf in`complete`average`ward;createtab[d;df];kd.createTree[d;sd:dim d;df;lf]];
- $[lf~`ward;cn1[cl]nnc[df;lf]/t;b;cn1[cl]hcca[df;lf]/t;   /ward/complete/average
-  lf~`single;cn2[cl]hcsin[d;df;lf;sd]/t;                  /single
-  cn2[cl]cluster[d;df;lf;sd;0b]/t]}                       /centroid
+ t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;sd:i.dim d;df]];
+ $[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t;  /`ward`complete`average
+  lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;lf;sd;0b;df]/t]} /`single`centroid
 
 /CURE algorithm
 /* r = number of representative points
-/* x2 = compression
+/* c = compression
 
-cure:{[d;cl;r;c]
- t:kd.createTree[d;sd:dim d;`e2dist;`single];
- cn2[cl]cluster[d;r;c;sd;1b]/t}
+cure:{[d;cl;r;c;df]
+ t:kd.buildtree[d;sd:i.dim d;df];
+ i.cn2[cl]algocc[d;r;c;sd;1b;df]/t}
 
-/kd-tree with the two closest clusters merged and distances/indices updated
-cluster:{[d;x1;x2;sd;b;t]
- v:val t;
- cl:closClust v;
- rep:$[b;curerep[d;cl;x1;x2];hcrep[d;cl;x2]];
- $[b;(df:`e2dist;lf:`single);(df:x1;lf:x2)];
- nn:nnidx[v;cl];
- t:kd.deleteN/[t;idxs:rep 2];
- dist:distc[df;val t;rp:rep 0];
- t:upd[t;dist;idxs;lf;ii:rep 1;rp;sd];
- nni:exec idx from t where initi in nn,valid;
- recalc[df;lf;t;nni;idxs;ii]}
+/CURE/centroid - merge two closest clusters and update distances/indices
+/* x1 = r (CURE) or df (centroid)
+/* x2 = c (CURE) or lf (centroid)
+/* sd = splitting dimension
+/* b  = 1b (CURE) or 0b (centroid)
 
-/hc single link - kd-tree with the two closest clusters merged and distances/indices updated
-hcsin:{[d;df;lf;sd;t]
- cl:closClust t;
- i0:first idxs:distinct raze cl`clustIdx;
- t:update clust:i0 from t where idx in cl`idx;ii:idxs;
- recalc[df;lf;t;cl`idx;idxs;ii]}
+algocc:{[d;x1;x2;sd;b;df;t]
+ cl:i.closclust i.val t;
+ rep:$[b;i.curerep[d;cl;x1;x2];i.hcrep[d;cl;x2]];
+ t:kd.insertcl[sd]/[t;rp;ii:first idxs;(count rp:rep 0)#enlist idxs:rep 1];
+ t:kd.deletecl[df]/[t;rep 2];
+ kd.distcalc[df]/[t;exec idx from t where clt in ii,valid]}
 
-/initial cluster table for complete/average linkage
-createtab:{
- d:{(d i;i:first 1_iasc d:dd[z]each x-/:y)}[;x;y]each x;
- flip`ind`rep`clust`nni`nnd!(i;x;i:til count x;d[;1];d[;0])}
+/Single - merge two closest clusters and update distances/indices
+algos:{[d;df;lf;sd;t]
+ cl:i.closclust t;
+ i0:first idxs:distinct raze cl`cltidx;
+ t:update clt:i0 from t where idx in cl`idx;
+ t:kd.distcalc[df]/[t;cl`idx];
+ {[c;t;j]update cltidx:c from t where initi=j,valid}[enlist idxs]/[t;idxs]}
 
-/clustered data points for complete/average linkage
-hcca:{[df;lf;t]
- cd:c,(t c:imin t`nnd)`nni;
- t:update clust:min cd from t where clust=max cd;
- nn:exec rep by clust from t where nni in cd;
- dd:distc[df]'[tc:{[x;y]select rep,clust from x where clust<>y}[t]each k:key nn;value nn];
+/Complete/average - merge two closest clusters and update distances/indices
+algoca:{[df;lf;t]
+ cd:c,(t c:kd.i.imin t`nnd)`nni;
+ t:update clt:min cd from t where clt=max cd;
+ nn:0!select pts by clt from t where nni in cd;
+ dd:distc[df]'[tc:{[x;y]select rep,clust from x where clt<>y}[t]each k:key nn;value nn];
  cd:dm@'im:imin each dm:{$[1=y;raze;ld[x;1]]z}[lf]'[value count each nn;dd];
  im:(tc@\:`clust)@'im;
- {[t;x;y;z]![t;enlist(=;`clust;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
+ {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
 
-/clustered data points for ward linkage
-nnc:{[df;lf;x]
- cd:c,d:(x c:imin x`nnd)`nni;
- x:update clust:min cd from x where clust=max cd;
- updw[lf;df;cd;x]}
+/Ward - merge two closest clusters and update distances/indices
+algow:{[df;lf;t]
+ cd:c,d:(t c:kd.i.imin t`nnd)`nni;
+ t:update clt:min cd from t where clt=max cd;
+ p:sum exec count[i]*first pts by pts from t where clt=min cd;
+ t:update pts:count[i]#enlist[p%count[i]]by clt from t where clt=min cd;
+ ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
+ du:i.hcupd[df;lf;ct]each select from ct where nn;
+ {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
