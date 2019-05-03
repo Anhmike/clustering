@@ -10,8 +10,10 @@
 /* lf = linkage function
 
 hc:{[d;cl;df;lf]
- t:$[b:lf in`complete`average`ward;buildtab[d;df];kd.buildtree[d;sd:i.dim d;df;lf]];
- $[lf~`ward;i.cn1[cl]algow[df;lf]/t;b;i.cn1[cl]algoca[df;lf]/t; /`ward`complete`average
+
+ t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;sd:i.dim d;df;lf]];
+ $[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t; /`ward`complete`average
+
   lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;lf;sd;0b]/t]} /`single`centroid
 
 /CURE algorithm
@@ -46,23 +48,20 @@ algos:{[d;df;lf;sd;t]
  t:update clt:i0 from t where idx in cl`idx;
  i.recalc[df;lf;t;cl`idx;idxs;idxs]}
 
-/Build initial cluster table for complete/average linkage
-buildtab:{
- d:{(d i;i:first 1_iasc d:kd.i.dd[z]each x-/:y)}[;x;y]each x;
- flip`idx`pts`clt`nni`nnd!(i;x;i:til count x;d[;1];d[;0])}
-
 /Complete/average - merge two closest clusters and update distances/indices
 algoca:{[df;lf;t]
  cd:c,(t c:kd.i.imin t`nnd)`nni;
  t:update clt:min cd from t where clt=max cd;
- nn:exec pts by clt from t where nni in cd;
- dd:i.distc[df]'[tc:{[x;y]select pts,clt from x where clt<>y}[t]each k:key nn;value nn];
- cd:dm@'im:kd.i.imin each dm:{$[1=y;raze;kd.i.ld[x;1]]z}[lf]'[value count each nn;dd];
- im:(tc@\:`clt)@'im;
- {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
+ nn:0!select pts by clt from t where nni in cd;
+ du:i.hcupd[df;lf;t]each nn;
+ {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
 
 /Ward - merge two closest clusters and update distances/indices
-algow:{[df;lf;x]
- cd:c,d:(x c:kd.i.imin x`nnd)`nni;
- x:update clt:min cd from x where clt=max cd;
- i.updw[lf;df;cd;x]}
+algow:{[df;lf;t]
+ cd:c,d:(t c:kd.i.imin t`nnd)`nni;
+ t:update clt:min cd from t where clt=max cd;
+ p:sum exec count[i]*first pts by pts from t where clt=min cd;
+ t:update pts:count[i]#enlist[p%count[i]]by clt from t where clt=min cd;
+ ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
+ du:i.hcupd[df;lf;ct]each select from ct where nn;
+ {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}

@@ -82,14 +82,13 @@ i.newpt:{[t;idxs;rp;sd;ii;df;lf;nn]
   }[n;updp;dm]/[t;til count updp]];
  upd[t;cd;ci;nn;idxs;df;lf;ii]}
 
-/clusters using ward
-i.updw:{[lf;df;cd;t]
- p:sum exec count[i]*first pts by pts from t where clt=min cd;
- t:update pts:count[i]#enlist[p%count[i]]by clt from t where clt=min cd;
- ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
- nd:i.pointdist[df;lf;;ct]each uc:select from ct where nn;
- {[t;x;y]![t;enlist(=;`clt;x);0b;`nnd`nni!y[0],y 1]}/[t;uc`clt;nd]}
+/initial cluster table for complete/average linkage
+i.buildtab:{
+ d:{(d i;i:first 1_iasc d:kd.i.dd[z]each x-/:y)}[;x;y]each x;
+ flip`idx`pts`clt`nni`nnd!(i;x;i:til count x;d[;1];d[;0])}
 
-/ward distance calculations
-i.pointdist:{[df;lf;x;y](d first i j;first ci j:where x[`clt]<>ci:y[`clt]i:2#iasc d:i.ldw[x`n]'[y`n;kd.i.dd[df]each x[`pts]-/:y`pts])}
-i.ldw:{z%(1%y)+1%x}
+i.hcupd:{[df;lf;t;cl]
+ t:select from t where clt<>cl[`clt];
+ dm:$[lf=`ward;raze kd.i.ld[lf;1][cl`n]'[t`n;i.distc[df;t;enlist cl`pts]];kd.i.ld[lf;1]i.distc[df;t;cl`pts]];
+ (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)
+ }

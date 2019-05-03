@@ -6,8 +6,9 @@ kd.i.imin:{x?min x}
 
 /distance and linkage dictionaries
 kd.i.dd:`e2dist`edist`mdist!({x wsum x};{sqrt x wsum x};{sum abs x})
-kd.i.ld:`single`complete`average`centroid!(@;@;@;{enlist avg x y}),'
- ({@'[x;kd.i.imin each x]};{@'[x;kd.i.imax each x]};avg each;raze)
+
+kd.i.ld:`single`complete`average`centroid`ward!(@;@;@;{enlist avg x y};@),'
+ ({@'[x;kd.i.imin each x]};{@'[x;kd.i.imax each x]};avg each;raze;{z%(1%y)+1%x})
 
 /updated kd-tree with new node inserted
 /* t   = kd-tree
@@ -50,4 +51,6 @@ kd.i.splitdim:{[t;bd;p;df;nn]
  a:select from t where idx=nn,valid;
  nsd:$[(qdim:p d)<rdim:first[a`pts]d:first a`dim;0;1];
  $[bd[0]>=kd.i.dd[df]rdim-qdim;exec idx from t where par=nn,valid;
+
   exec idx from t where par=nn,dir=nsd,valid],a`par}
+
