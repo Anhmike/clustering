@@ -10,8 +10,10 @@
 /* lf = linkage function
 
 hc:{[d;cl;df;lf]
+
  t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;sd:i.dim d;df;lf]];
  $[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t; /`ward`complete`average
+
   lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;lf;sd;0b]/t]} /`single`centroid
 
 /CURE algorithm
@@ -63,5 +65,3 @@ algow:{[df;lf;t]
  ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
  du:i.hcupd[df;lf;ct]each select from ct where nn;
  {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
-
-
