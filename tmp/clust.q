@@ -1,6 +1,7 @@
 \l kdtree.q
 \l kd-util.q
 \l utils.q
+\l clean/cure.q
 \d .clust
 
 /hierarchical clustering
@@ -18,9 +19,11 @@ hc:{[d;cl;df;lf]
 /* r = number of representative points
 /* c = compression
 
-cure:{[d;cl;r;c;df]
- t:kd.buildtree[d;sd:i.dim d;df];
- i.rtab[d]i.cn2[cl]algocc[d;r;c;sd;1b;df]/t}
+cure:{[d;cl;r;c;df;b]
+ $[b;[cst:.cure.cure[r;c;cl;flip d];
+ ([]idx:til count d;clt:{where y in 'x}[cst]each til count d;pts:d)];
+ [t:kd.buildtree[d;sd:i.dim d;df];
+  i.rtab[d]i.cn2[cl]algocc[d;r;c;sd;1b;df]/t]]}
 
 /CURE/centroid - merge two closest clusters and update distances/indices
 /* x1 = r (CURE) or df (centroid)
