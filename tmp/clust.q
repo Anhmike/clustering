@@ -48,10 +48,8 @@ algoca:{[df;lf;t]
  cd:c,(t c:kd.i.imin t`nnd)`nni;
  t:update clt:min cd from t where clt=max cd;
  nn:0!select pts by clt from t where nni in cd;
- dd:distc[df]'[tc:{[x;y]select rep,clust from x where clt<>y}[t]each k:key nn;value nn];
- cd:dm@'im:imin each dm:{$[1=y;raze;ld[x;1]]z}[lf]'[value count each nn;dd];
- im:(tc@\:`clust)@'im;
- {[t;x;y;z]![t;enlist(=;`clt;x);0b;`nnd`nni!y,z]}/[t;k;cd;im]}
+ du:i.hcupd[df;lf;t]each nn;
+ {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
 
 /Ward - merge two closest clusters and update distances/indices
 algow:{[df;lf;t]
@@ -62,3 +60,4 @@ algow:{[df;lf;t]
  ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
  du:i.hcupd[df;lf;ct]each select from ct where nn;
  {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
+
