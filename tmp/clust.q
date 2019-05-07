@@ -10,18 +10,17 @@
 /* lf = linkage function
 
 hc:{[d;cl;df;lf]
-
- t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;sd:i.dim d;df;lf]];
- i.rtab[d]$[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t; /`ward`complete`average
-  lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;lf;sd;0b]/t]} /`single`centroid
+ t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;sd:i.dim d;df]];
+ i.rtab[d]$[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t;  /`ward`complete`average
+  lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;df;lf;sd;0b]/t]} /`single`centroid
 
 /CURE algorithm
 /* r = number of representative points
 /* c = compression
 
-cure:{[d;cl;r;c]
- t:kd.buildtree[d;sd:i.dim d;`e2dist;`single];
- i.rtab[d]i.cn2[cl]algocc[d;r;c;sd;1b]/t}
+cure:{[d;cl;df;r;c]
+ t:kd.buildtree[d;sd:i.dim d;df];
+ i.rtab[d]i.cn2[cl]algocc[d;df;r;c;sd;1b]/t}
 
 /CURE/centroid - merge two closest clusters and update distances/indices
 /* x1 = r (CURE) or df (centroid)
@@ -29,23 +28,20 @@ cure:{[d;cl;r;c]
 /* sd = splitting dimension
 /* b  = 1b (CURE) or 0b (centroid)
 
-algocc:{[d;x1;x2;sd;b;t]
- cl:i.closclust v:i.val t;
+algocc:{[d;df;x1;x2;sd;b;t]
+ cl:i.closclust i.val t;
  rep:$[b;i.curerep[d;cl;x1;x2];i.hcrep[d;cl;x2]];
- nn:i.nnidx[v;cl];
- t:kd.deletecl/[t;idxs:rep 2];
- if[b;x1:`e2dist;x2:`single];
- dist:i.distc[x1;i.val t;rp:rep 0];
- t:i.upd[t;dist;idxs;x2;ii:rep 1;rp;sd];
- nni:exec idx from t where initi in nn,valid;
- i.recalc[x1;x2;t;nni;idxs;ii]}
+ t:kd.insertcl[sd]/[t;rp;ii:first idxs;(count rp:rep 0)#enlist idxs:rep 1];
+ t:kd.deletecl[df]/[t;rep 2];
+ kd.distcalc[df]/[t;exec idx from t where clt in ii,valid]}
 
 /Single - merge two closest clusters and update distances/indices
 algos:{[d;df;lf;sd;t]
  cl:i.closclust t;
  i0:first idxs:distinct raze cl`cltidx;
  t:update clt:i0 from t where idx in cl`idx;
- i.recalc[df;lf;t;cl`idx;idxs;idxs]}
+ t:kd.distcalc[df]/[t;cl`idx];
+ {[c;t;j]update cltidx:c from t where initi=j,valid}[enlist idxs]/[t;idxs]}
 
 /Complete/average - merge two closest clusters and update distances/indices
 algoca:{[df;lf;t]

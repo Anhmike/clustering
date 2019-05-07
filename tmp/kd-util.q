@@ -6,7 +6,6 @@ kd.i.imin:{x?min x}
 
 /distance and linkage dictionaries
 kd.i.dd:`e2dist`edist`mdist!({x wsum x};{sqrt x wsum x};{sum abs x})
-
 kd.i.ld:`single`complete`average`centroid`ward!(@;@;@;{enlist avg x y};@),'
  ({@'[x;kd.i.imin each x]};{@'[x;kd.i.imax each x]};avg each;raze;{z%(1%y)+1%x})
 
@@ -19,10 +18,10 @@ kd.i.ld:`single`complete`average`centroid`ward!(@;@;@;{enlist avg x y};@),'
 /* ci  = cluster index
 /* sd  = splitting dimension
 
-kd.i.insertn:{[t;p;nsd;d;ii;ci;sd]
+kd.i.insertn:{[t;p;nsd;d;ci;k;sd]
  $[not 0b in t`valid;
-  t upsert([]idx:1+max t`idx;initi:ii;clt:ii;pts:enlist d;dim:mod[1+p`dim;sd];valid:1b;par:p`idx;dir:nsd 2);
-  update idx:1+max t`idx,initi:ii,clt:ci,pts:enlist d,valid:1b,dim:mod[1+p`dim;sd],dir:nsd 2,par:p`idx 
+ t upsert([]idx:1+max t`idx;initi:1+max t`idx;clt:ci;cltidx:k;pts:enlist d;dim:mod[1+p`dim;sd];valid:1b;par:p`idx;dir:nsd);
+  update idx:1+max t`idx,initi:1+max t`idx,clt:ci,pts:enlist d,valid:1b,cltidx:k,dim:mod[1+p`dim;sd],dir:nsd,par:p`idx 
    from t where idx=first exec idx from t where not valid]}
 
 /returns list of next node to split on, previous node and splitting dimensions
@@ -51,6 +50,4 @@ kd.i.splitdim:{[t;bd;p;df;nn]
  a:select from t where idx=nn,valid;
  nsd:$[(qdim:p d)<rdim:first[a`pts]d:first a`dim;0;1];
  $[bd[0]>=kd.i.dd[df]rdim-qdim;exec idx from t where par=nn,valid;
-
   exec idx from t where par=nn,dir=nsd,valid],a`par}
-
