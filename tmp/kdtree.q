@@ -56,4 +56,3 @@ kd.delnode:{
  newNode:kd.i.mindim[t;X;child];
  tree:kd.i.updatet[t;newNode;X];
  (update nni:X from tree where nni=first newNode`idx,valid;first newNode`idx)}
-

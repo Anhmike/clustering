@@ -54,4 +54,3 @@ i.hcupd:{[df;lf;t;cl]
  dm:$[lf=`ward;raze kd.i.ld[lf;1][cl`n]'[t`n;i.distc[df;t;enlist cl`pts]];kd.i.ld[lf;1]i.distc[df;t;cl`pts]];
  (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)
  }
-
