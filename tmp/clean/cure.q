@@ -3,7 +3,7 @@
 
 \d .cure
 i.:(::)
-clib:2:[`:./cure]
+clib:2:[`:clean/./cure]
 impf:{i[u]:clib(u:`$"_"sv string(x;y)),z}
 impf'[`cure_cluster_dists;`F`E;3];
 impf'[`cure_cluster_reps;`F`E;3];
