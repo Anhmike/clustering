@@ -1,6 +1,6 @@
 \d .clust
 
-/no of splitting dimensions of co-ordinates
+/splitting dimensions of co-ordinates + next splitting dimension, e.g. (x,y) = 0 1 0
 i.dim:{count first x}
 
 /valid entries of a kd-tree
@@ -52,5 +52,5 @@ i.buildtab:{
 i.hcupd:{[df;lf;t;cl]
  t:select from t where clt<>cl[`clt];
  dm:$[lf=`ward;raze kd.i.ld[lf;1][cl`n]'[t`n;i.distc[df;t;enlist cl`pts]];kd.i.ld[lf;1]i.distc[df;t;cl`pts]];
- (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)}
-
+ (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)
+ }

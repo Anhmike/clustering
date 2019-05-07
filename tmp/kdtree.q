@@ -43,7 +43,8 @@ kd.deletecl:{[df;t;X]
   kd.delnode/(t;pt);
  t:update valid:0b from first delCl where idx=last delCl;
  nn:exec idx from t where initi in ni,valid;
- kd.distcalc[df]/[t;nn]}
+ kd.distcalc[df]/[t;nn]
+ }
 /updated kd-tree and next point to be deleted
 kd.delnode:{
  t:x 0;X:x 1;
