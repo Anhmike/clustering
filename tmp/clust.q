@@ -1,7 +1,7 @@
 \l kdtree.q
 \l kd-util.q
 \l utils.q
-\l clean/cure.q
+\l ccode/cure.q
 \d .clust
 
 /hierarchical clustering
@@ -63,4 +63,3 @@ algow:{[df;lf;t]
  ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
  du:i.hcupd[df;lf;ct]each select from ct where nn;
  {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
-
