@@ -52,3 +52,4 @@ kd.i.splitdim:{[t;bd;p;df;nn]
  $[bd[0]>=kd.i.dd[df]rdim-qdim;exec idx from t where par=nn,valid;
   exec idx from t where par=nn,dir=nsd,valid],a`par}
 
+

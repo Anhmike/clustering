@@ -11,7 +11,7 @@
 
 hc:{[d;cl;df;lf]
  t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;sd:i.dim d;df]];
- $[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t;  /`ward`complete`average
+ i.rtab[d]$[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t;  /`ward`complete`average
   lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;lf;sd;0b;df]/t]} /`single`centroid
 
 /CURE algorithm
@@ -20,7 +20,7 @@ hc:{[d;cl;df;lf]
 
 cure:{[d;cl;r;c;df]
  t:kd.buildtree[d;sd:i.dim d;df];
- i.cn2[cl]algocc[d;r;c;sd;1b;df]/t}
+ i.rtab[d]i.cn2[cl]algocc[d;r;c;sd;1b;df]/t}
 
 /CURE/centroid - merge two closest clusters and update distances/indices
 /* x1 = r (CURE) or df (centroid)
@@ -60,4 +60,8 @@ algow:{[df;lf;t]
  ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
  du:i.hcupd[df;lf;ct]each select from ct where nn;
  {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
+
+
+
+
 

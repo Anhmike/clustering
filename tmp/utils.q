@@ -10,6 +10,10 @@ i.val:{select from x where valid}
 i.cn1:{x<exec count distinct clt from y}
 i.cn2:{x<count distinct exec cltidx from y where valid}
 
+/same output
+i.cl2tab:{`idx xasc flip`idx`clt!raze each(x;(count each x)#'min each x:exec distinct cltidx from x where valid)}
+i.rtab:{update pts:x from @[i.cl2tab;y;{[x;y]`idx`clt`pts#y}[;y]]}
+
 /2 closest clusters in a kd-tree
 i.closclust:{ 
  a:first select from x where nnd=min nnd;
@@ -50,3 +54,4 @@ i.hcupd:{[df;lf;t;cl]
  dm:$[lf=`ward;raze kd.i.ld[lf;1][cl`n]'[t`n;i.distc[df;t;enlist cl`pts]];kd.i.ld[lf;1]i.distc[df;t;cl`pts]];
  (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)
  }
+
