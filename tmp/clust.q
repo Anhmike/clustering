@@ -11,16 +11,16 @@
 
 hc:{[d;cl;df;lf]
  t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;sd:i.dim d;df]];
- $[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t;  /`ward`complete`average
-  lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;lf;sd;0b;df]/t]} /`single`centroid
+ i.rtab[d]$[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t;  /`ward`complete`average
+  lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;df;lf;sd;0b]/t]} /`single`centroid
 
 /CURE algorithm
 /* r = number of representative points
 /* c = compression
 
-cure:{[d;cl;r;c;df]
+cure:{[d;cl;df;r;c]
  t:kd.buildtree[d;sd:i.dim d;df];
- i.cn2[cl]algocc[d;r;c;sd;1b;df]/t}
+ i.rtab[d]i.cn2[cl]algocc[d;df;r;c;sd;1b]/t}
 
 /CURE/centroid - merge two closest clusters and update distances/indices
 /* x1 = r (CURE) or df (centroid)
@@ -28,7 +28,7 @@ cure:{[d;cl;r;c;df]
 /* sd = splitting dimension
 /* b  = 1b (CURE) or 0b (centroid)
 
-algocc:{[d;x1;x2;sd;b;df;t]
+algocc:{[d;df;x1;x2;sd;b;t]
  cl:i.closclust i.val t;
  rep:$[b;i.curerep[d;cl;x1;x2];i.hcrep[d;cl;x2]];
  t:kd.insertcl[sd]/[t;rp;ii:first idxs;(count rp:rep 0)#enlist idxs:rep 1];

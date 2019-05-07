@@ -1,6 +1,6 @@
 \d .clust
 
-/splitting dimensions of co-ordinates + next splitting dimension, e.g. (x,y) = 0 1 0
+/no of splitting dimensions of co-ordinates
 i.dim:{count first x}
 
 /valid entries of a kd-tree
@@ -9,6 +9,10 @@ i.val:{select from x where valid}
 /true if number of clusters in a kd-tree > desired number of clusters (cl)
 i.cn1:{x<exec count distinct clt from y}
 i.cn2:{x<count distinct exec cltidx from y where valid}
+
+/same output
+i.cl2tab:{`idx xasc flip`idx`clt!raze each(x;(count each x)#'min each x:exec distinct cltidx from x where valid)}
+i.rtab:{update pts:x from @[i.cl2tab;y;{[x;y]`idx`clt`pts#y}[;y]]}
 
 /2 closest clusters in a kd-tree
 i.closclust:{ 
@@ -48,5 +52,5 @@ i.buildtab:{
 i.hcupd:{[df;lf;t;cl]
  t:select from t where clt<>cl[`clt];
  dm:$[lf=`ward;raze kd.i.ld[lf;1][cl`n]'[t`n;i.distc[df;t;enlist cl`pts]];kd.i.ld[lf;1]i.distc[df;t;cl`pts]];
- (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)
- }
+ (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)}
+
