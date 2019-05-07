@@ -1,9 +1,9 @@
 / for tree nearest neighbors searches
-\l clean/kdtree.q
+\l ccode/kdtree.q
 
 \d .cure
 i.:(::)
-clib:2:[`:clean/./cure]
+clib:2:[`:ccode/./cure]
 impf:{i[u]:clib(u:`$"_"sv string(x;y)),z}
 impf'[`cure_cluster_dists;`F`E;3];
 impf'[`cure_cluster_reps;`F`E;3];

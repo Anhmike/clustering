@@ -16,7 +16,7 @@ i.buildtree:{[f;p;o;left;x]
  l:.z.s[f;p+o;1;1b;u[0;0]];                    / left subtree
  r:.z.s[f;p+o;1+count l 0;0b;u[0;1]];          / right subtree
  (p;left;0b;enlist p+o+1+0,count l 0;u[1;0];u[1;1]),'l,'r}
-i.searchfrom:`:clean/./kdtree 2:`kdtree_searchfrom,3
+i.searchfrom:`:ccode/./kdtree 2:`kdtree_searchfrom,3
 searchfrom:{$[not type[y]~type x 4;'`type;i.searchfrom[x;y;z]]}
 
 create:{[leafsize;x]i.buildtree[i.pivot[x;leafsize];-1;1;0b;til count x 0]}
