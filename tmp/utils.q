@@ -23,8 +23,9 @@ i.closclust:{
 /index of nearest neighbours in kd-tree to cluster
 i.nnidx:{[t;cl]exec initi except cl`initi from t where nni in cl`idx} 
 
-/distance calulation (x) between valid points in tree (y) and points in cluster (z)
-i.distc:{kd.i.dd[x]@'/:z-\:/:y`pts}
+/distance calulation (x) between clusters
+i.distc:{[lf;df;x;y]kd.i.ld[lf]each kd.i.dd[df]@'/:raze each x-/:\:/:y`pts}
+i.distcw:{[lf;df;x;y]kd.i.ld[lf][x`n]'[y`n;kd.i.dd[df]each x[`pts]-/:y`pts]}
 
 /representative points for a cluster using CURE - get most spread out and apply compression
 /* d  = data points
@@ -41,7 +42,7 @@ i.curerep:{[d;cl;r;c]
 
 /representative points for cluster using hierarchical clustering
 i.hcrep:{[d;cl;lf]
- rp:kd.i.ld[lf;0][d;idxs:distinct raze cl`cltidx];
+ rp:{enlist avg x y}[d;idxs:distinct raze cl`cltidx];
  (rp;idxs;cl`initi)}
 
 /initial cluster table for complete/average linkage
@@ -49,8 +50,8 @@ i.buildtab:{
  d:{(d i;i:first 1_iasc d:kd.i.dd[z]each x-/:y)}[;x;y]each x;
  flip`idx`pts`clt`nni`nnd!(i;x;i:til count x;d[;1];d[;0])}
 
+/find new nearest cluster
 i.hcupd:{[df;lf;t;cl]
- t:select from t where clt<>cl[`clt];
- dm:$[lf=`ward;raze kd.i.ld[lf;1][cl`n]'[t`n;i.distc[df;t;enlist cl`pts]];kd.i.ld[lf;1]i.distc[df;t;cl`pts]];
- (cl`clt;`cd`ci!(dm;t`clt)@\:kd.i.imin dm)
- }
+ dm:$[lf=`ward;i.distcw[lf;df;cl;t:select clt,n,pts from t where clt<>cl`clt];
+      i.distc[lf;df;cl`pts;t:0!select pts by clt from t where clt<>cl`clt]];
+ (cl`clt;(dm;t`clt)@\:kd.i.imin dm)}

@@ -6,8 +6,7 @@ kd.i.imin:{x?min x}
 
 /distance and linkage dictionaries
 kd.i.dd:`e2dist`edist`mdist!({x wsum x};{sqrt x wsum x};{sum abs x})
-kd.i.ld:`single`complete`average`centroid`ward!(@;@;@;{enlist avg x y};@),'
- ({@'[x;kd.i.imin each x]};{@'[x;kd.i.imax each x]};avg each;raze;{z%(1%y)+1%x})
+kd.i.ld:`single`complete`average`centroid`ward!(min;max;avg;raze;{z%(1%y)+1%x})
 
 /updated kd-tree with new node inserted
 /* t   = kd-tree

@@ -19,11 +19,11 @@ hc:{[d;cl;df;lf]
 /* r = number of representative points
 /* c = compression
 
-cure:{[d;cl;df;r;c;b]
+cure:{[d;cl;df;r;c;b;s]
  $[b;[cst:.cure.cure[r;c;cl;flip d];
  ([]idx:til count d;clt:{where y in 'x}[cst]each til count d;pts:d)];
  [t:kd.buildtree[d;sd:i.dim d;df];
- i.rtab[d]i.cn2[cl]algocc[d;df;r;c;sd;1b]/t]]}
+ $[s;;i.rtab[d]]i.cn2[cl]algocc[d;df;r;c;sd;1b]/t]]}
 
 /CURE/centroid - merge two closest clusters and update distances/indices
 /* x1 = r (CURE) or df (centroid)
@@ -52,7 +52,7 @@ algoca:{[df;lf;t]
  t:update clt:min cd from t where clt=max cd;
  nn:0!select pts by clt from t where nni in cd;
  du:i.hcupd[df;lf;t]each nn;
- {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
+ {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!x 1]}/[t;du]}
 
 /Ward - merge two closest clusters and update distances/indices
 algow:{[df;lf;t]
@@ -62,4 +62,12 @@ algow:{[df;lf;t]
  t:update pts:count[i]#enlist[p%count[i]]by clt from t where clt=min cd;
  ct:0!select n:count i,first pts,nn:any nni in cd by clt from t;
  du:i.hcupd[df;lf;ct]each select from ct where nn;
- {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!value x 1]}/[t;du]}
+ {[t;x]![t;enlist(=;`clt;x 0);0b;`nnd`nni!x 1]}/[t;du]}
+
+/cluster new points
+clustnew:{
+ v:select from x where valid;
+ cl:$[z;raze whichcl[v;exec idx from v where dir=2]each y;
+  v[`clt]{.clust.kd.i.imin sum each k*k:y-/:x}[v`pts]each y];
+ ([]pts:y;clt:cl)}
+whichcl:{ind:@[;2]{0<count x 1}kd.bestdist[x;z;0n;`e2dist]/(0w;y;y;y);exec clt from x where idx=ind}
