@@ -1,3 +1,4 @@
+\l kdutils.q
 \d .clust
 
 /build kd-tree with 1st data point as root and remaining points subsequently added

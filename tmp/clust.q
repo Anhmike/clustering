@@ -1,5 +1,5 @@
 \l kdtree.q
-\l kd-util.q
+\l kdutils.q
 \l utils.q
 \l ccode/cure.q
 \d .clust
