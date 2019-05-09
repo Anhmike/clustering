@@ -5,9 +5,9 @@
 /* sd = splitting dimensions
 /* df = distance function/metric
 
-kd.buildtree:{[d;sd;df]
- r:flip`idx`initi`pts`dir`dim`par`clt`cltidx`valid!(0;0;enlist @[d;0];2;0;0;0;enlist 0 0;1b);
- t:kd.insertcl[sd]/[r;1_d;cl;cl:1_til count d];
+kd.buildtree:{[d;cl;sd;df]
+ r:flip`idx`initi`pts`dir`dim`par`clt`cltidx`valid!(0;0;enlist @[d;0];2;0;0;cl 0;enlist 0 0;1b);
+ t:kd.insertcl[sd]/[r;1_d;1_cl;1_cl];
  kd.distcalc[df]/[t;t`initi]}
 
 /insert new cluster checking if L or R of root and looking at sd of each node
@@ -25,9 +25,11 @@ kd.distcalc:{[df;t;pt]
  dist:{0<count x 1}kd.bestdist[t;first idpts`pts;first idpts`clt;df]/
   (0W;raze[idpts[`par],raze exec idx from t where par=pt,valid]except pt;pt;pt);
  update nnd:dist 0,nni:dist 2 from t where idx=pt}
+
 /returns list of best distance, points to search, closest index, searched indices
 /* p  = index of cluster in the kd-tree
 /* bd = current best distance from p to the closest cluster
+
 kd.bestdist:{[t;p;cl;df;bd]
  nn:bd 1;
  newn:select pts,idx from t where idx in nn,valid,clt<>cl;
@@ -35,6 +37,7 @@ kd.bestdist:{[t;p;cl;df;bd]
  if[(newd[0]<bd 0)&count[newn]<>0;bd[0]:newd 0;bd[2]:newd 1];
  axis:raze[kd.i.splitdim[t;bd;p;df]each nn]except bd[3]:bd[3],nn;
  (bd 0;distinct axis;bd 2;bd 3)}
+
 /updated kd-tree with point X removed by moving points up the tree until X has no children
 kd.deletecl:{[df;t;X]
  pt:first exec idx from t where initi=X,valid;
@@ -43,8 +46,8 @@ kd.deletecl:{[df;t;X]
   kd.delnode/(t;pt);
  t:update valid:0b from first delCl where idx=last delCl;
  nn:exec idx from t where initi in ni,valid;
- kd.distcalc[df]/[t;nn]
- }
+ kd.distcalc[df]/[t;nn]}
+
 /updated kd-tree and next point to be deleted
 kd.delnode:{
  t:x 0;X:x 1;
