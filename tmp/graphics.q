@@ -1,4 +1,4 @@
-\l clust.q
+\l ../clust.q
 \d .clust
 plt:.p.import`matplotlib.pyplot
 

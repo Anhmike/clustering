@@ -1,7 +1,7 @@
-\l kdtree.q
-\l kdutils.q
-\l utils.q
-\l ccode/cure.q
+\l ../kdtree.q
+\l ../kdutils.q
+\l ../utils.q
+\l ../ccode/cure.q
 \d .clust
 
 /hierarchical clustering
