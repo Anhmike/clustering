@@ -18,8 +18,20 @@ plot:{
   box[`:set_title]"df/",$[b;["lf: ",string[f 0],"/",string f 1];
       ["C: ",string[f 0],"/",string[f 3],"b"]]," - ",string t;
   }[x;y]'[z;til count z];
- plt[`:show][];
- }
+ plt[`:show][];}
+
+plot3d:{
+ fig::plt[`:figure][];
+ fig[`:set_size_inches;18.5;10.5];
+ {[d;c;f;i]
+  ax:fig[`:add_subplot][;;i+1;`projection pykw"3d"]. $[b:2~count f;3 4;1 3];
+  s:.z.t;
+  r:$[b;hc;cure][d;c;] . f;
+  t:.z.t-s;
+  {x[`:scatter][;;]. flip y}[ax]each exec pts by clt from r;
+  ax[`:set_title]"df/lf: ",string[f 0],"/",$[b;string f 1;string[f 3],"b"]," - ",string t
+  }[x;y]'[z;til count z];
+ plt[`:show][];}
 
 plotwdb:{
  s:.z.t;
