@@ -24,7 +24,7 @@ or via conda:
 conda install --file requirements.txt
 ```
 
-*Running of the notebook examples contained within the FRESH section of this library will require the installation of JupyterQ however this is not a dependancy for the running of functions at an individual level.*
+*Running of the notebook examples will require the installation of JupyterQ however this is not a dependancy for the running of functions at an individual level.*
 
 ## Status
 
