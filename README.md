@@ -11,10 +11,20 @@ A k-dimensional tree (k-d tree) is used by the single and centroid hierarchical 
 ## Requirements
 
 - embedPy
-- Matplotlib 2.1.1
-- Matplot3d
-- Scikit learn
-- PyClustering (data samples)
+
+The python packages required to allow successful exectution of all functions within the machine learning toolkit can be installed via:
+
+pip:
+```bash
+pip install -r requirements.txt
+```
+
+or via conda:
+```bash
+conda install --file requirements.txt
+```
+
+*Running of the notebook examples contained within the FRESH section of this library will require the installation of JupyterQ however this is not a dependancy for the running of functions at an individual level.*
 
 ## Status
 
