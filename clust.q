@@ -6,27 +6,26 @@
 
 /hierarchical clustering
 /* d  = data
-/* cl = number of clusters
+/* k  = number of clusters
 /* df = distance function/metric
 /* lf = linkage function
 
-hc:{[d;cl;df;lf]
+hc:{[d;k;df;lf]
  t:$[b:lf in`complete`average`ward;i.buildtab[d;df];kd.buildtree[d;til count d;sd:i.dim d;df]];
- i.rtab[d]$[lf~`ward;i.cn1[cl]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[cl]algoca[df;lf]/t;
-  lf~`single;i.cn2[cl]algos[d;df;lf;sd]/t;i.cn2[cl]algocc[d;df;df;lf;sd;0b]/t]}
+ i.rtab[d]$[lf~`ward;i.cn1[k]algow[df;lf]/@[t;`nnd;%;2];b;i.cn1[k]algoca[df;lf]/t;
+  lf~`single;i.cn2[k]algos[d;df;lf;sd]/t;i.cn2[k]algocc[d;df;df;lf;sd;0b]/t]}
 
 /CURE algorithm
 /* r = number of representative points
 /* c = compression
 
-cure:{[d;cl;df;r;c;b;s]
- $[b;[cst:.cure.cure[r;c;cl;flip d];
+cure:{[d;k;df;r;c;b;s]
+ $[b;[cst:.cure.cure[r;c;k;flip d];
  ([]idx:til count d;clt:{where y in'x}[cst]each til count d;pts:d)];
  [t:kd.buildtree[d;til count d;sd:i.dim d;df];
- $[s;{select from x where valid};i.rtab[d]]i.cn2[cl]algocc[d;df;r;c;sd;1b]/t]]}
+ $[s;{select from x where valid};i.rtab[d]]i.cn2[k]algocc[d;df;r;c;sd;1b]/t]]}
 
 /DBSCAN algorithm
-/* d = data
 /* p = minimum number of points per cluster
 /* e = epsilon value
 
@@ -34,6 +33,16 @@ dbscan:{[d;p;e]
  dm:i.epdistmat[e;flip d]'[d;k:til count d];
  t:([]idx:k;dist:dm;clt:0N;valid:1b);
  i.rtabdb[d]{0N<>x 1}algodb[p]/(t;0;0)}
+
+/k-means algorithm
+/* n = number of iterations
+/* i = initialisation type - 1b use points in dataset or 0b random initialisation
+
+kmeans:{[d;k;n;i;df]
+ dm:i.typecast dm:flip d;
+ init:$[i;kpp[dm;k];i.randinitf[dm;k]];
+ centers:n{{avg each x@\:y}[x]each value group i.mindist[x;y;z]}[dm;;df]/init;
+ i.rtabkm[d]i.mindist[dm;centers;df]}
 
 /CURE/centroid - merge two closest clusters and update distances/indices
 /* x1 = r (CURE) or df (centroid)
@@ -80,9 +89,25 @@ algodb:{[p;l]
  nc:first exec idx from t:cl 0 where valid;
  (t;nc;1+c)}
 
+/kmeans
+kpp:{kpp2[flip x;y]}
+kpp2:{[m;n](n-1){y,x iwrand[1]{x x?min x}each flip{sqrt sum x*x-:y}[flip x]'[y]}[m]/1?m}
+iwrand:{[n;w]s binr n?last s:sums w}
+
 /cluster new points
 clustnew:{
  cl:$[z;raze whichcl[x;exec idx from x where dir=2]each y;
   x[`clt]{.clust.kd.i.imin sum each k*k:y-/:x}[x`pts]each y];
  ([]pts:y;clt:cl)}
 whichcl:{ind:@[;2]{0<count x 1}kd.bestdist[x;z;0n;`e2dist]/(0w;y;y;y);exec clt from x where idx=ind}
+
+
+/
+/k-means in batches
+/* p = percentage of data in each batch
+i.randinit:{x@\:neg[y]?til count x 0}
+kmeanminibatch:{[d;n;k;i;df;p]
+ dm:i.typecast dm:flip d;
+ init:$[i;i.kpp[dm;n];i.randinitf[dm;n]];
+ centers:k{[x;y;z;k]{avg each x@\:y}[x]each value group i.mindist[i.randinit[x;floor k*count x 0];y;z]}[dm;;df;p]/init;
+ i.rtabkm[d]i.mindist[dm;centers;df]}

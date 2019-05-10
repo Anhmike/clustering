@@ -12,8 +12,9 @@ i.cn2:{x<count distinct exec cltidx from y where valid}
 
 /same output
 i.cl2tab:{`idx xasc flip`idx`clt!raze each(x;(count each x)#'min each x:exec distinct cltidx from x where valid)}
-i.rtab:{update pts:x from @[i.cl2tab;y;{[x;y]`idx`clt`pts#y}[;y]]}
+i.rtab:  {update pts:x from @[i.cl2tab;y;{[x;y]`idx`clt`pts#y}[;y]]}
 i.rtabdb:{update pts:x from select idx,clt from y 0}
+i.rtabkm:{([]idx:til count x;pts:x;clt:y)}
 
 /2 closest clusters in a kd-tree
 i.closclust:{ 
@@ -28,6 +29,7 @@ i.nnidx:{[t;cl]exec initi except cl`initi from t where nni in cl`idx}
 i.distc:{[lf;df;x;y]kd.i.ld[lf]each kd.i.dd[df]@'/:raze each x-/:\:/:y`pts}
 i.distcw:{[lf;df;x;y]kd.i.ld[lf][x`n]'[y`n;kd.i.dd[df]each x[`pts]-/:y`pts]}
 i.epdistmat:{[e;x;y;n]where e>=@[;n;:;0w]sum x*x-:y}
+i.mindist:{{k:@[x;where x=0;:;0n];k?min k}each(,'/)kd.i.dd[z]each x-/:y}
 
 /representative points for a cluster using CURE - get most spread out and apply compression
 /* d  = data points
@@ -39,8 +41,7 @@ i.curerep:{[d;idxs;r;c]
  mean:avg d idxs;
  maxp:idxs kd.i.imax sum each{x*x}mean-/:d idxs;
  rp:d r{z,m kd.i.imax{min{sum k*k:x[z]-x[y]}[x;y]each z}[x;;z]each m:y except z}[d;idxs]/maxp;
- (rp*1-c)+\:c*mean
- }
+ (rp*1-c)+\:c*mean}
 
 /representative points for cluster using hierarchical clustering
 i.hcrep:{[d;cl;lf]
@@ -73,3 +74,9 @@ i.dbclust:{[c;p;l]
   }[t;p]each exec idx from t where idx in s,valid}[t:l 0;p]each s:l 1;
  t:update clt:c,valid:0b from t where idx in distinct raze s;
  (t;ncl)}
+
+/kmeans random initialisation
+i.randinitf:{flip x@\:neg[y]?til count x 0}
+
+/cast table/dictionary to matrix
+i.typecast:{$[98=type x;value flip x;99=type x;value x;0=type x;x;'`type]}
